@@ -1,6 +1,11 @@
 <?php
 namespace Craft;
 
+use CS_REST_Campaigns;
+use CS_REST_Clients;
+use CS_REST_Lists;
+use CS_REST_Subscribers;
+
 /**
  * Class SproutMailchimpService
  *
@@ -12,6 +17,7 @@ class SproutCampaignMonitorService extends BaseApplicationComponent
 	 * @var Model|null
 	 */
 	protected $settings;
+	private $error = '';
 
 	public function init()
 	{
@@ -56,12 +62,12 @@ class SproutCampaignMonitorService extends BaseApplicationComponent
 			}
 			else
 			{
-				sproutEmail()->error('Unable to get lists', array('result' => $result));
+				sproutCampaignMonitor()->error('Unable to get lists', array('result' => $result));
 			}
 		}
 		catch (\Exception $e)
 		{
-			sproutEmail()->error($e->getMessage());
+			sproutCampaignMonitor()->error($e->getMessage());
 		}
 
 		return $lists;
@@ -74,53 +80,20 @@ class SproutCampaignMonitorService extends BaseApplicationComponent
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function sendCampaignEmail(SproutEmail_CampaignEmailModel $campaignEmail, SproutEmail_CampaignTypeModel $campaignType)
+	public function sendCampaignEmail(SproutCampaignMonitor_CampaignModel $campaignModel)
 	{
-		$urls = $this->getCampaignEmailUrls($campaignEmail->id, $campaignType->template);
-
-		$lists          = SproutEmail_RecipientListRelationsRecord::model()->findAllByAttributes(array(
-			'emailId' => $campaignEmail->id
-		));
-
-		$recipientLists = array();
-		$toEmails       = array();
-
-		foreach ($lists as $list)
-		{
-			array_push($recipientLists, $list->list);
-			$toEmails[] = $this->getListLabel($list->list);
-		}
-
-		$params = array(
-			'email'     => $campaignEmail,
-			'campaign'  => $campaignType,
-			'recipient' => array(
-				'firstName' => 'First',
-				'lastName'  => 'Last',
-				'email'     => 'user@domain.com'
-			),
-
-			// @deprecate - in favor of `email` in v3
-			'entry'     => $campaignEmail
-		);
-
-		$content = array(
-			'html' => sproutEmail()->renderSiteTemplateIfExists($campaignType->template, $params),
-			'text' => sproutEmail()->renderSiteTemplateIfExists($campaignType->template . '.txt', $params),
-		);
-
 		try
 		{
 			$auth   = $this->getPostParams();
 			$params = array(
-				'Subject'   => $campaignEmail->subjectLine,
-				'Name'      => $campaignType->name . ': ' . $campaignEmail->subjectLine,
-				'FromName'  => $campaignEmail->fromName,
-				'FromEmail' => $campaignEmail->fromEmail,
-				'ReplyTo'   => $campaignEmail->replyToEmail,
-				'HtmlUrl'   => $campaignEmail->getUrl(),
-				'TextUrl'   => $campaignEmail->getUrl() . '?type=text',
-				'ListIDs'   => $recipientLists
+				'Subject'   => $campaignModel->Subject,
+				'Name'      => $campaignModel->Name . ': ' . $campaignModel->Subject,
+				'FromName'  => $campaignModel->FromName,
+				'FromEmail' => $campaignModel->FromEmail,
+				'ReplyTo'   => $campaignModel->ReplyTo,
+				'HtmlUrl'   => $campaignModel->HtmlUrl,
+				'TextUrl'   => $campaignModel->TextUrl,
+				'ListIDs'   => $campaignModel->ListIDs
 			);
 
 			// Set up API call to create a draft campaign and assign the response to $response
@@ -129,11 +102,11 @@ class SproutCampaignMonitorService extends BaseApplicationComponent
 
 			$email = new EmailModel();
 
-			$email->subject   = $campaignEmail->subjectLine;
-			$email->fromName  = $campaignEmail->fromName;
-			$email->fromEmail = $campaignEmail->fromEmail;
-			$email->body      = $content['text'];
-			$email->htmlBody  = $content['html'];
+			$email->subject   = $campaignModel->Subject;
+			$email->fromName  = $campaignModel->FromName;
+			$email->fromEmail = $campaignModel->FromEmail;
+			$email->body      = $campaignModel->text;
+			$email->htmlBody  = $campaignModel->html;
 
 			if (!empty($toEmails))
 			{
@@ -143,22 +116,22 @@ class SproutCampaignMonitorService extends BaseApplicationComponent
 			// Conditional return for success/fail response from Campaign Monitor
 			if (!$response->was_successful())
 			{
-				sproutEmail()->error('Error creating campaign in Campaign Monitor: ' . $response->http_status_code . ' - ' . $response->response->Message);
+				sproutCampaignMonitor()->error('Error creating campaign in Campaign Monitor: ' . $response->http_status_code . ' - ' . $response->response->Message);
 
 				throw new Exception(Craft::t('{code}: {msg}', array('code' => $response->http_status_code, 'msg' => $response->response->Message)));
 			}
 			else
 			{
-				sproutEmail()->info('Successfully created campaign in Campaign Monitor with ID: ' . $response->response);
+				sproutCampaignMonitor()->info('Successfully created campaign in Campaign Monitor with ID: ' . $response->response);
 
-				$this->sendEmailViaService($campaignEmail, $response->response, $auth);
+				$this->sendEmailViaService($campaignModel->ReplyTo, $response->response, $auth);
 
 				return array('id' => $response->response, 'emailModel' => $email);
 			}
 		}
 		catch (\Exception $e)
 		{
-			sproutEmail()->error('Error creating campaign in Campaign Monitor: ' . $e->getMessage());
+			sproutCampaignMonitor()->error('Error creating campaign in Campaign Monitor: ' . $e->getMessage());
 
 			throw $e;
 		}
@@ -167,7 +140,7 @@ class SproutCampaignMonitorService extends BaseApplicationComponent
 	/*
 	 * @return true|false according to the success of the request
 	 */
-	public function sendEmailViaService(SproutEmail_CampaignEmailModel $campaignEmail, $campaignTypeId, $auth)
+	public function sendEmailViaService($confirmationEmail, $campaignTypeId, $auth)
 	{
 		// Access the newly created draft campaign
 		$campaignToSend = new CS_REST_Campaigns($campaignTypeId, $auth);
@@ -177,27 +150,27 @@ class SproutCampaignMonitorService extends BaseApplicationComponent
 		{
 			$response = $campaignToSend->send(
 				array(
-					'ConfirmationEmail' => $campaignEmail->replyToEmail,
+					'ConfirmationEmail' => $confirmationEmail,
 					'SendDate'          => 'immediately'
 				)
 			);
 
 			if (!$response->was_successful())
 			{
-				sproutEmail()->error('Error sending campaign through Campaign Monitor: ' . $response->http_status_code . ' - ' . $response->response->Message);
+				sproutCampaignMonitor()->error('Error sending campaign through Campaign Monitor: ' . $response->http_status_code . ' - ' . $response->response->Message);
 
 				return false;
 			}
 			else
 			{
-				sproutEmail()->info('Successfully sent campaign through Campaign Monitor with ID: ' . $campaignTypeId);
+				sproutCampaignMonitor()->info('Successfully sent campaign through Campaign Monitor with ID: ' . $campaignTypeId);
 
 				return true;
 			}
 		}
 		catch (\Exception $e)
 		{
-			sproutEmail()->error('Error sending campaign through Campaign Monitor: ' . $e->getMessage());
+			sproutCampaignMonitor()->error('Error sending campaign through Campaign Monitor: ' . $e->getMessage());
 
 			throw $e;
 		}
@@ -299,6 +272,7 @@ class SproutCampaignMonitorService extends BaseApplicationComponent
 	{
 		// Get stats belonging to a list with the given ID
 		$list     = new CS_REST_Lists($listId, $this->getPostParams());
+
 		$response = $list->get()->response;
 
 		return $this->tryJsonResponse($response);
@@ -327,25 +301,6 @@ class SproutCampaignMonitorService extends BaseApplicationComponent
 		}
 	}
 
-	public function getCampaignEmailUrls($emailId, $template)
-	{
-		// @todo: make sure these URLs are getting assigned
-		// to a live, outside accessible URL
-		// Assign html/text URLs for Campaign Monitor to scrape
-		$urls = array(
-			'html' => craft()->siteUrl . 'index.php/admin/actions/sproutEmail/campaignEmails/shareCampaignEmail?emailId=' . $emailId . '&template=html'
-		);
-
-		// Determine if a text template exists
-		$urls['hasText'] = sproutEmail()->doesSiteTemplateExist($template . '.txt');
-		if ($urls['hasText'])
-		{
-			$urls['text'] = craft()->siteUrl . 'index.php/admin/actions/sproutEmail/campaignEmails/shareCampaignEmail?emailId=' . $emailId . '&template=text';
-		}
-
-		return $urls;
-	}
-
 	public function getListLabel($id)
 	{
 		$details = $this->getDetails($id);
@@ -360,5 +315,54 @@ class SproutCampaignMonitorService extends BaseApplicationComponent
 		$plugin = craft()->plugins->getPlugin( 'sproutCampaignMonitor' );
 
 		return $plugin->getSettings();
+	}
+
+	/**
+	 * Logs an info message to the plugin logs
+	 *
+	 * @param mixed $message
+	 * @param array $variables
+	 */
+	public function info($message, array $variables = array())
+	{
+		if (is_string($message))
+		{
+			$message = Craft::t($message, $variables);
+		}
+		else
+		{
+			$message = print_r($message, true);
+		}
+
+		SproutEmailPlugin::log($message, LogLevel::Info);
+	}
+
+	/**
+	 * Logs an error in cases where it makes more sense than to throw an exception
+	 *
+	 * @param mixed $message
+	 * @param array $variables
+	 */
+	public function error($message, $key = '', array $variables = array())
+	{
+		if (is_string($message))
+		{
+			$message = Craft::t($message, $variables);
+		}
+		else
+		{
+			$message = print_r($message, true);
+		}
+
+		if (!empty($key))
+		{
+			$this->error[$key] = $message;
+		}
+		else
+		{
+			$this->error = $message;
+		}
+
+		SproutEmailPlugin::log($message, LogLevel::Error);
 	}
 }

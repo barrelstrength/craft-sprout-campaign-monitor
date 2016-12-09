@@ -44,14 +44,14 @@ class SproutCampaignMonitorPlugin extends BasePlugin
 		);
 	}
 
-	//public function defineSproutEmailMailers()
-	//{
-	//	Craft::import("plugins.sproutcampaignmonitor.integrations.sproutemail.SproutCampaignMonitor");
-	//
-	//	return array(
-	//		'campaignmonitor' => new SproutCampaignMonitor()
-	//	);
-	//}
+	public function defineSproutEmailMailers()
+	{
+		Craft::import("plugins.sproutcampaignmonitor.integrations.sproutemail.SproutCampaignMonitorMailer");
+
+		return array(
+			'campaignmonitor' => new SproutCampaignMonitorMailer()
+		);
+	}
 }
 
 function sproutCampaignMonitor()

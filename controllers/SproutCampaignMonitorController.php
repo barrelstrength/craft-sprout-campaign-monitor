@@ -11,6 +11,8 @@ class SproutCampaignMonitorController extends BaseController
 
 		$settings = $campaignMonitorPlugin->getSettings();
 
+		$settings->setAttributes($campaignmonitor);
+
 		if ($settings->validate())
 		{
 			$settings = craft()->plugins->savePluginSettings( $campaignMonitorPlugin, $campaignmonitor );
