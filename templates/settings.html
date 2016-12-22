@@ -1,17 +1,9 @@
-{% extends "_layouts/cp" %}
 {% import "_includes/forms" as forms %}
-{% set title = "Sprout Mailer Campaign Monitor" %}
-{% import "_includes/forms" as forms %}
-
-{% set fullPageForm = true %}
 
 {% block content %}
-	<input type="hidden" name="action" value="sproutCampaignMonitor/saveSettings">
-	<input type="hidden" name="redirect" value="sproutCampaignMonitor/settings">
-
 	{{ forms.textField({
 		label: "Client ID"|t,
-		name: 'campaignmonitor[clientId]',
+		name: 'clientId',
 		instructions: "Enter the Client ID from your <a href='https://www.campaignmonitor.com/api/getting-started/?&_ga=1.195741929.458523390.1446569721#clientid' target='_blank'>Client Settings</a>."|t,
 		value: settings is defined ? settings.clientId : null,
 		first: true,
@@ -20,7 +12,7 @@
 
 	{{ forms.textField({
 		label: "API Key"|t,
-		name: 'campaignmonitor[apiKey]',
+		name: 'apiKey',
 		instructions: "Enter the API Key from your <a href='https://www.campaignmonitor.com/api/getting-started/?&_ga=1.195741929.458523390.1446569721#clientid' target='_blank'>Client Settings</a>."|t,
 		value: settings is defined ? settings.apiKey : null,
 		errors: settings is defined ? settings.getErrors('apiKey') : null

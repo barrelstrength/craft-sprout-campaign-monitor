@@ -26,7 +26,7 @@ class SproutCampaignMonitorPlugin extends BasePlugin
 
 	public function hasCpSection()
 	{
-		return true;
+		return false;
 	}
 
 	protected function defineSettings()
@@ -37,11 +37,11 @@ class SproutCampaignMonitorPlugin extends BasePlugin
 		);
 	}
 
-	public function registerCpRoutes()
+	public function getSettingsHtml()
 	{
-		return array(
-			'sproutcampaignmonitor/settings' => array( 'action' => 'sproutCampaignMonitor/editSettings' )
-		);
+		return craft()->templates->render('sproutcampaignmonitor/settings', array(
+			'settings' => $this->getSettings()
+		));
 	}
 
 	public function defineSproutEmailMailers()
