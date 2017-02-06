@@ -67,7 +67,7 @@ class SproutCampaignMonitorMailer extends SproutEmailBaseMailer implements Sprou
 	{
 		$settings = isset($settings['settings']) ? $settings['settings'] : $this->getSettings();
 
-		$html = craft()->templates->render('sproutemail/settings/mailers/campaignmonitor/settings', array(
+		$html = craft()->templates->render('sproutcampaignmonitor/settings', array(
 			'settings' => $settings
 		));
 
