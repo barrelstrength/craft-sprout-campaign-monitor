@@ -1,20 +1,22 @@
 {% import "_includes/forms" as forms %}
 
 {% block content %}
-	{{ forms.textField({
-		label: "Client ID"|t,
-		name: 'clientId',
-		instructions: "Enter the Client ID from your <a href='https://www.campaignmonitor.com/api/getting-started/?&_ga=1.195741929.458523390.1446569721#clientid' target='_blank'>Client Settings</a>."|t,
-		value: settings is defined ? settings.clientId : null,
-		first: true,
-		errors: settings is defined ? settings.getErrors('clientId') : null
-	}) }}
 
 	{{ forms.textField({
 		label: "API Key"|t,
 		name: 'apiKey',
 		instructions: "Enter the API Key from your <a href='https://www.campaignmonitor.com/api/getting-started/?&_ga=1.195741929.458523390.1446569721#clientid' target='_blank'>Client Settings</a>."|t,
 		value: settings is defined ? settings.apiKey : null,
-		errors: settings is defined ? settings.getErrors('apiKey') : null
+		errors: settings is defined ? settings.getErrors('apiKey') : null,
+		first: true
 	}) }}
+
+	{{ forms.textField({
+		label: "Client ID"|t,
+		name: 'clientId',
+		instructions: "Enter the Client ID from your <a href='https://www.campaignmonitor.com/api/getting-started/?&_ga=1.195741929.458523390.1446569721#clientid' target='_blank'>Client Settings</a>."|t,
+		value: settings is defined ? settings.clientId : null,
+		errors: settings is defined ? settings.getErrors('clientId') : null
+	}) }}
+
 {% endblock %}

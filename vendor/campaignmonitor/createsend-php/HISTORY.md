@@ -241,7 +241,7 @@ specific email address belongs.
 
 ## v1.1.2 - 23 Jul, 2012
 
-* Added support for specifying whether subscription-based autoresponders
+* Added support for specifying whether criteria-based autoresponders
 should be restarted when adding or updating subscribers.
 
 ## v1.1.1 - 16 Jul, 2012

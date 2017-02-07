@@ -28,6 +28,33 @@ class SproutCampaignMonitorMailer extends SproutEmailBaseMailer implements Sprou
 	}
 
 	/**
+	 * @return array
+	 */
+	public function defineSettings()
+	{
+		return array(
+			'clientId' => array(AttributeType::String, 'required' => true),
+			'apiKey'   => array(AttributeType::String, 'required' => true),
+		);
+	}
+
+	/**
+	 * @param array $settings
+	 *
+	 * @return \Twig_Markup
+	 */
+	public function getSettingsHtml(array $settings = array())
+	{
+		$settings = isset($settings['settings']) ? $settings['settings'] : $this->getSettings();
+
+		$html = craft()->templates->render('sproutcampaignmonitor/settings', array(
+			'settings' => $settings
+		));
+
+		return TemplateHelper::getRaw($html);
+	}
+
+	/**
 	 * @return mixed
 	 */
 	public function getRecipientLists()
