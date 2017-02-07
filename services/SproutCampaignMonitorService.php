@@ -25,6 +25,13 @@ class SproutCampaignMonitorService extends BaseApplicationComponent
 		$this->settings = $this->getSettings();
 	}
 
+	public function getSettings()
+	{
+		$plugin = craft()->plugins->getPlugin( 'sproutCampaignMonitor' );
+
+		return $plugin->getSettings();
+	}
+
 	/**
 	 * @throws \Exception
 	 *
@@ -291,13 +298,6 @@ class SproutCampaignMonitorService extends BaseApplicationComponent
 		$stats = $this->getListStats($id)->TotalActiveSubscribers;
 
 		return sprintf('%s (%d)', $details->Title, $stats);
-	}
-
-	public function getSettings()
-	{
-		$plugin = craft()->plugins->getPlugin( 'sproutCampaignMonitor' );
-
-		return $plugin->getSettings();
 	}
 
 	/**
