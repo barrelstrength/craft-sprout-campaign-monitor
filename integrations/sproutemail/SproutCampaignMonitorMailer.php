@@ -4,26 +4,6 @@ namespace Craft;
 class SproutCampaignMonitorMailer extends SproutEmailBaseMailer implements SproutEmailCampaignEmailSenderInterface
 {
 	/**
-	 * @var SproutEmailCampaignMonitorService
-	 */
-	protected $service;
-
-	/**
-	 * @return SproutEmailCampaignMonitorService
-	 */
-	public function getService()
-	{
-		if (null === $this->service)
-		{
-			$this->service = Craft::app()->getComponent('sproutCampaignMonitor');
-
-			$this->service->setSettings(sproutCampaignMonitor()->getSettings());
-		}
-
-		return $this->service;
-	}
-
-	/**
 	 * @return string
 	 */
 	public function getName()
@@ -48,38 +28,11 @@ class SproutCampaignMonitorMailer extends SproutEmailBaseMailer implements Sprou
 	}
 
 	/**
-	 * @return array
-	 */
-	public function defineSettings()
-	{
-		return array(
-			'clientId' => array(AttributeType::String, 'required' => true),
-			'apiKey'   => array(AttributeType::String, 'required' => true),
-		);
-	}
-
-	/**
-	 * @param array $settings
-	 *
-	 * @return \Twig_Markup
-	 */
-	public function getSettingsHtml(array $settings = array())
-	{
-		$settings = isset($settings['settings']) ? $settings['settings'] : $this->getSettings();
-
-		$html = craft()->templates->render('sproutemail/settings/mailers/campaignmonitor/settings', array(
-			'settings' => $settings
-		));
-
-		return TemplateHelper::getRaw($html);
-	}
-
-	/**
 	 * @return mixed
 	 */
 	public function getRecipientLists()
 	{
-		return $this->getService()->getRecipientLists();
+		return sproutCampaignMonitor()->getRecipientLists();
 	}
 
 	/**
@@ -105,7 +58,7 @@ class SproutCampaignMonitorMailer extends SproutEmailBaseMailer implements Sprou
 			foreach ($lists as $list)
 			{
 				$options[] = array(
-					'label' => sprintf('%s (%d)', $list->Name, $this->getService()->getListStats($list->ListID)->TotalActiveSubscribers),
+					'label' => sprintf('%s (%d)', $list->Name, sproutCampaignMonitor()->getListStats($list->ListID)->TotalActiveSubscribers),
 					'value' => $list->ListID
 				);
 			}
@@ -176,7 +129,7 @@ class SproutCampaignMonitorMailer extends SproutEmailBaseMailer implements Sprou
 		{
 			foreach ($lists as $list)
 			{
-				array_push($recipientLists, $this->getService()->getDetails($list->list)->Title);
+				array_push($recipientLists, sproutCampaignMonitor()->getDetails($list->list)->Title);
 			}
 		}
 
@@ -199,7 +152,7 @@ class SproutCampaignMonitorMailer extends SproutEmailBaseMailer implements Sprou
 		try
 		{
 			// Load service first to get proper API settings
-			$service = $this->getService();
+			$service = sproutCampaignMonitor();
 
 			$lists          = SproutEmail_RecipientListRelationsRecord::model()->findAllByAttributes(array(
 				'emailId' => $campaignEmail->id

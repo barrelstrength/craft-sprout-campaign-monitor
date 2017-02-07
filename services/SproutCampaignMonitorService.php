@@ -17,29 +17,12 @@ class SproutCampaignMonitorService extends BaseApplicationComponent
 	 * @var Model|null
 	 */
 	protected $settings;
-	private $error = '';
 
 	public function init()
 	{
-		require_once dirname(__FILE__) . '/../vendor/autoload.php';
-	}
+		parent::init();
 
-	/**
-	 * @param $settings
-	 *
-	 * @throws Exception
-	 */
-	public function setSettings(Model $settings)
-	{
-		if (is_object($settings) && method_exists($settings, 'validate'))
-		{
-			if (!$settings->validate())
-			{
-				throw new Exception(Craft::t('Please configure your API settings for Campaign Monitor.'));
-			}
-		}
-
-		$this->settings = $settings;
+		$this->settings = $this->getSettings();
 	}
 
 	/**

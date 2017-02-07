@@ -29,6 +29,12 @@ class SproutCampaignMonitorPlugin extends BasePlugin
 		return false;
 	}
 
+	public function init()
+	{
+		// Load campaigmonitor API library
+		require_once dirname(__FILE__) . '/vendor/autoload.php';
+	}
+
 	protected function defineSettings()
 	{
 		return array(
