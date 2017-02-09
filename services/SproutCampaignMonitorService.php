@@ -32,6 +32,11 @@ class SproutCampaignMonitorService extends BaseApplicationComponent
 		return $plugin->getSettings();
 	}
 
+	public function getSettingsUrl()
+	{
+		return UrlHelper::getCpUrl(sprintf('settings/plugins/%s', 'sproutcampaignmonitor'));
+	}
+
 	/**
 	 * @throws \Exception
 	 *
