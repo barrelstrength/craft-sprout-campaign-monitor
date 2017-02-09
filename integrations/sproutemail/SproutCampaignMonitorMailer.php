@@ -55,7 +55,7 @@ class SproutCampaignMonitorMailer extends SproutEmailBaseMailer implements Sprou
 
 		if (!count($lists))
 		{
-			return craft()->templates->render('sproutemail/settings/mailers/campaignmonitor/recipientlists/norecipientlists');
+			return craft()->templates->render('sproutcampaignmonitor/recipientlists/norecipientlists');
 		}
 
 		if (count($lists))
@@ -138,7 +138,7 @@ class SproutCampaignMonitorMailer extends SproutEmailBaseMailer implements Sprou
 			}
 		}
 
-		return craft()->templates->render('sproutemail/settings/mailers/campaignmonitor/sendEmailPrepare', array(
+		return craft()->templates->render('sproutcampaignmonitor/sendEmailPrepare', array(
 			'campaignEmail'  => $campaignEmail,
 			'campaignType'   => $campaignType,
 			'recipientLists' => $recipientLists
@@ -209,7 +209,7 @@ class SproutCampaignMonitorMailer extends SproutEmailBaseMailer implements Sprou
 		$response->emailModel = $result['emailModel'];
 		$response->success    = true;
 		$response->content    = craft()->templates->render(
-			'sproutemail/settings/mailers/campaignmonitor/sendEmailConfirmation',
+			'sproutcampaignmonitor/sendEmailConfirmation',
 			array(
 				'success'  => true,
 				'response' => $response
@@ -236,21 +236,5 @@ class SproutCampaignMonitorMailer extends SproutEmailBaseMailer implements Sprou
 		}
 
 		return $urls;
-	}
-
-	/**
-	 * @todo - confirm if this is in use
-	 *
-	 * @param array $extra
-	 *
-	 * @return array
-	 */
-	public function getPostParams(array $extra = array())
-	{
-		$params = array(
-			'api_key' => $this->settings['apiKey']
-		);
-
-		return array_merge($params, $extra);
 	}
 }

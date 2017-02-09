@@ -17,6 +17,11 @@ class SproutCampaignMonitorService extends BaseApplicationComponent
 	 * @var Model|null
 	 */
 	protected $settings;
+	
+	/**
+	 * @var
+	 */
+	protected $error;
 
 	public function init()
 	{
