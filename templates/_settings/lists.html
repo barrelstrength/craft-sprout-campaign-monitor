@@ -1,0 +1,15 @@
+{% import "_includes/forms" as forms %}
+
+{% if options|length %}
+
+	{{ forms.checkboxGroup({
+		name: 'listIds',
+		options: options,
+		values: values
+	}) }}
+
+{% else %}
+
+	{{ forms.errorsList(errors) }}
+
+{% endif %}

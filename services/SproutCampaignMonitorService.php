@@ -30,49 +30,6 @@ class SproutCampaignMonitorService extends BaseApplicationComponent
 		$this->settings = $this->getSettings();
 	}
 
-	public function getSettings()
-	{
-		$plugin = craft()->plugins->getPlugin( 'sproutCampaignMonitor' );
-
-		return $plugin->getSettings();
-	}
-
-	public function getSettingsUrl()
-	{
-		return UrlHelper::getCpUrl(sprintf('settings/plugins/%s', 'sproutcampaignmonitor'));
-	}
-
-	/**
-	 * @throws \Exception
-	 *
-	 * @return array
-	 */
-	public function getRecipientLists()
-	{
-		$lists = array();
-
-		try
-		{
-			$client = new CS_REST_Clients($this->settings['clientId'], $this->getPostParams());
-			$result = $client->get_lists();
-
-			if ($result->was_successful())
-			{
-				return $result->response;
-			}
-			else
-			{
-				sproutCampaignMonitor()->error('Unable to get lists', array('result' => $result));
-			}
-		}
-		catch (\Exception $e)
-		{
-			sproutCampaignMonitor()->error($e->getMessage());
-		}
-
-		return $lists;
-	}
-
 	/**
 	 * @param SproutEmail_CampaignEmailModel $campaignEmail
 	 * @param SproutEmail_CampaignTypeModel  $campaignType
@@ -84,7 +41,8 @@ class SproutCampaignMonitorService extends BaseApplicationComponent
 	{
 		try
 		{
-			$auth   = $this->getPostParams();
+			$auth = $this->getPostParams();
+
 			$params = array(
 				'Subject'   => $campaignModel->Subject,
 				'Name'      => $campaignModel->Name . ': ' . $campaignModel->Subject,
@@ -122,7 +80,7 @@ class SproutCampaignMonitorService extends BaseApplicationComponent
 			}
 			else
 			{
-				sproutCampaignMonitor()->info('Successfully created campaign in Campaign Monitor with ID: ' . $response->response);
+				SproutEmailPlugin::log(Craft::t('Successfully created campaign in Campaign Monitor with ID: ' . $response->response), LogLevel::Info);
 
 				$this->sendEmailViaService($campaignModel->ReplyTo, $response->response, $auth);
 
@@ -163,7 +121,7 @@ class SproutCampaignMonitorService extends BaseApplicationComponent
 			}
 			else
 			{
-				sproutCampaignMonitor()->info('Successfully sent campaign through Campaign Monitor with ID: ' . $campaignTypeId);
+				SproutEmailPlugin::log(Craft::t('Successfully sent campaign through Campaign Monitor with ID: ' . $campaignTypeId), LogLevel::Info);
 
 				return true;
 			}
@@ -271,7 +229,7 @@ class SproutCampaignMonitorService extends BaseApplicationComponent
 	public function getDetails($listId)
 	{
 		// Get stats belonging to a list with the given ID
-		$list     = new CS_REST_Lists($listId, $this->getPostParams());
+		$list = new CS_REST_Lists($listId, $this->getPostParams());
 
 		$response = $list->get()->response;
 
@@ -299,35 +257,6 @@ class SproutCampaignMonitorService extends BaseApplicationComponent
 		{
 			return array();
 		}
-	}
-
-	public function getListLabel($id)
-	{
-		$details = $this->getDetails($id);
-
-		$stats = $this->getListStats($id)->TotalActiveSubscribers;
-
-		return sprintf('%s (%d)', $details->Title, $stats);
-	}
-
-	/**
-	 * Logs an info message to the plugin logs
-	 *
-	 * @param mixed $message
-	 * @param array $variables
-	 */
-	public function info($message, array $variables = array())
-	{
-		if (is_string($message))
-		{
-			$message = Craft::t($message, $variables);
-		}
-		else
-		{
-			$message = print_r($message, true);
-		}
-
-		SproutEmailPlugin::log($message, LogLevel::Info);
 	}
 
 	/**
