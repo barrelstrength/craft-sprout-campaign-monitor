@@ -191,7 +191,7 @@ class SproutCampaignMonitorMailer extends SproutEmailBaseMailer implements Sprou
 
 		try
 		{
-			$client = new CS_REST_Clients($this->settings['clientId'], $this->getPostParams());
+			$client = new \CS_REST_Clients($this->settings['clientId'], $this->getPostParams());
 			$result = $client->get_lists();
 
 			if ($result->was_successful())

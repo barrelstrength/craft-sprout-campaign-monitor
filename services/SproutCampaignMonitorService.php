@@ -13,6 +13,8 @@ use CS_REST_Subscribers;
  */
 class SproutCampaignMonitorService extends BaseApplicationComponent
 {
+	public $error;
+
 	/**
 	 * @var Model|null
 	 */
@@ -27,7 +29,7 @@ class SproutCampaignMonitorService extends BaseApplicationComponent
 	{
 		parent::init();
 
-		$this->settings = $this->getSettings();
+		$this->settings = craft()->plugins->getPlugin('sproutCampaignMonitor')->getSettings();
 	}
 
 	/**
