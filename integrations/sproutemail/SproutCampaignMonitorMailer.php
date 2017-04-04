@@ -3,6 +3,11 @@ namespace Craft;
 
 class SproutCampaignMonitorMailer extends SproutEmailBaseMailer implements SproutEmailCampaignEmailSenderInterface
 {
+
+	public function __construct()
+	{
+		$this->settings = $this->getSettings();
+	}
 	/**
 	 * @return string
 	 */
@@ -87,8 +92,7 @@ class SproutCampaignMonitorMailer extends SproutEmailBaseMailer implements Sprou
 			$service = sproutCampaignMonitor();
 
 			// @todo - update to use new listSettings
-			$lists   = array();
-			$listIds = array();
+			$listIds = $campaignEmail->listSettings['listIds'];
 
 			$params = array(
 				'email'     => $campaignEmail,
@@ -156,7 +160,7 @@ class SproutCampaignMonitorMailer extends SproutEmailBaseMailer implements Sprou
 		{
 			foreach ($listSettings['listIds'] as $list)
 			{
-				$currentList = $this->getListById($list);
+				$currentList = sproutCampaignMonitor()->getDetails($list)->Title;
 
 				array_push($lists, $currentList);
 			}
@@ -191,7 +195,10 @@ class SproutCampaignMonitorMailer extends SproutEmailBaseMailer implements Sprou
 
 		try
 		{
-			$client = new \CS_REST_Clients($this->settings['clientId'], $this->getPostParams());
+			$params = sproutCampaignMonitor()->getPostParams();
+
+			$client = new \CS_REST_Clients($this->settings['clientId'], $params);
+
 			$result = $client->get_lists();
 
 			if ($result->was_successful())
@@ -200,9 +207,7 @@ class SproutCampaignMonitorMailer extends SproutEmailBaseMailer implements Sprou
 			}
 			else
 			{
-				sproutCampaignMonitor()->error('Unable to get lists', array(
-					'result' => $result
-				));
+				sproutCampaignMonitor()->error($result->response->Message, 'invalid-list');
 			}
 		}
 		catch (\Exception $e)
@@ -223,9 +228,11 @@ class SproutCampaignMonitorMailer extends SproutEmailBaseMailer implements Sprou
 	public function getListsHtml(array $values = null)
 	{
 		$lists    = $this->getLists();
+
+		$errors = sproutCampaignMonitor()->getErrors();
+
 		$options  = array();
 		$selected = array();
-		$errors   = array();
 
 		if (count($lists))
 		{
@@ -237,16 +244,16 @@ class SproutCampaignMonitorMailer extends SproutEmailBaseMailer implements Sprou
 				);
 			}
 		}
-		else
+		elseif (empty($errors))
 		{
 			$errors[] = Craft::t('No lists found. Create your first list in Campaign Monitor.');
 		}
 
-		if (is_array($values) && count($values))
+		if (!empty($values['listIds']) && is_array($values['listIds']))
 		{
-			foreach ($values as $value)
+			foreach ($values['listIds'] as $value)
 			{
-				$selected[] = $value->list;
+				$selected[] = $value;
 			}
 		}
 

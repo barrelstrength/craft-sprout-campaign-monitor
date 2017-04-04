@@ -19,11 +19,6 @@ class SproutCampaignMonitorService extends BaseApplicationComponent
 	 * @var Model|null
 	 */
 	protected $settings;
-	
-	/**
-	 * @var
-	 */
-	protected $error;
 
 	public function init()
 	{
@@ -67,11 +62,6 @@ class SproutCampaignMonitorService extends BaseApplicationComponent
 			$email->fromEmail = $campaignModel->FromEmail;
 			$email->body      = $campaignModel->text;
 			$email->htmlBody  = $campaignModel->html;
-
-			if (!empty($toEmails))
-			{
-				$email->toEmail = implode(', ', $toEmails);
-			}
 
 			// Conditional return for success/fail response from Campaign Monitor
 			if (!$response->was_successful())
@@ -288,5 +278,10 @@ class SproutCampaignMonitorService extends BaseApplicationComponent
 		}
 
 		SproutEmailPlugin::log($message, LogLevel::Error);
+	}
+
+	public function getErrors()
+	{
+		return $this->error;
 	}
 }

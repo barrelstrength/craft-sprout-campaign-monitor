@@ -1,5 +1,5 @@
 {
-  "name"   : "barrelstrengthdesign/sproutmailchimp",
+  "name"   : "barrelstrengthdesign/sproutcampaignmonitor",
   "require": {
     "campaignmonitor/createsend-php": "~5.0.0"
   }
