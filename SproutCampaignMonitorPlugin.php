@@ -31,7 +31,7 @@ class SproutCampaignMonitorPlugin extends BasePlugin
 
 	public function init()
 	{
-		// Load campaigmonitor API library
+		// Load Campaign Monitor API library
 		require_once dirname(__FILE__) . '/vendor/autoload.php';
 	}
 
@@ -45,7 +45,7 @@ class SproutCampaignMonitorPlugin extends BasePlugin
 
 	public function getSettingsHtml()
 	{
-		return craft()->templates->render('sproutcampaignmonitor/settings', array(
+		return craft()->templates->render('sproutcampaignmonitor/_settings/plugin', array(
 			'settings' => $this->getSettings()
 		));
 	}
