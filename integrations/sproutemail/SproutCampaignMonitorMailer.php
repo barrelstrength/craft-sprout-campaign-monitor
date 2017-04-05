@@ -281,4 +281,25 @@ class SproutCampaignMonitorMailer extends SproutEmailBaseMailer implements Sprou
 
 		return $urls;
 	}
+
+	/**
+	 * Auto add url to campaign monitor entry because sendCampaignEmail does not work without url
+	 *
+	 * @param SproutEmail_CampaignTypeModel $model
+	 *
+	 * @return SproutEmail_CampaignTypeModel
+	 */
+	public function prepareSave(SproutEmail_CampaignTypeModel $model)
+	{
+		$handle = $model->handle;
+
+		$model->hasUrls   = 1;
+
+		if (empty($model->urlFormat))
+		{
+			$model->urlFormat = "$handle/{slug}";
+		}
+
+		return $model;
+	}
 }
