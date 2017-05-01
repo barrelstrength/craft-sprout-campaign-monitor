@@ -1,13 +1,14 @@
 <?php
+
 namespace Craft;
 
 class SproutCampaignMonitorMailer extends SproutEmailBaseMailer implements SproutEmailCampaignEmailSenderInterface
 {
-
 	public function __construct()
 	{
 		$this->settings = $this->getSettings();
 	}
+
 	/**
 	 * @return string
 	 */
@@ -187,7 +188,7 @@ class SproutCampaignMonitorMailer extends SproutEmailBaseMailer implements Sprou
 	}
 
 	/**
-	 * @return array
+	 * @return array|mixed
 	 */
 	public function getLists()
 	{
@@ -227,7 +228,7 @@ class SproutCampaignMonitorMailer extends SproutEmailBaseMailer implements Sprou
 	 */
 	public function getListsHtml(array $values = null)
 	{
-		$lists    = $this->getLists();
+		$lists = $this->getLists();
 
 		$errors = sproutCampaignMonitor()->getErrors();
 
@@ -264,6 +265,12 @@ class SproutCampaignMonitorMailer extends SproutEmailBaseMailer implements Sprou
 		));
 	}
 
+	/**
+	 * @param $emailId
+	 * @param $template
+	 *
+	 * @return mixed
+	 */
 	public function getCampaignEmailUrls($emailId, $template)
 	{
 		// @todo: make sure these URLs are getting assigned
@@ -293,7 +300,7 @@ class SproutCampaignMonitorMailer extends SproutEmailBaseMailer implements Sprou
 	{
 		$handle = $model->handle;
 
-		$model->hasUrls   = 1;
+		$model->hasUrls = 1;
 
 		if (empty($model->urlFormat))
 		{

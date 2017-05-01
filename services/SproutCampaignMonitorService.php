@@ -1,4 +1,5 @@
 <?php
+
 namespace Craft;
 
 use CS_REST_Campaigns;
@@ -13,6 +14,9 @@ use CS_REST_Subscribers;
  */
 class SproutCampaignMonitorService extends BaseApplicationComponent
 {
+	/**
+	 * @var
+	 */
 	public $error;
 
 	/**
@@ -87,8 +91,13 @@ class SproutCampaignMonitorService extends BaseApplicationComponent
 		}
 	}
 
-	/*
-	 * @return true|false according to the success of the request
+	/**
+	 * @param $confirmationEmail
+	 * @param $campaignTypeId
+	 * @param $auth
+	 *
+	 * @return bool
+	 * @throws \Exception
 	 */
 	public function sendEmailViaService($confirmationEmail, $campaignTypeId, $auth)
 	{
@@ -154,7 +163,7 @@ class SproutCampaignMonitorService extends BaseApplicationComponent
 		$csRestSubscribers      = new CS_REST_Subscribers($listId, $apiKey);
 		$subscriberCustomFields = array();
 
-		/*
+		/**
 		 * Properties of the model passed in to this function will be
 		 * parsed from "camelCase" to "Normal Case" for the field's
 		 * Campaign Monitor key
@@ -203,7 +212,7 @@ class SproutCampaignMonitorService extends BaseApplicationComponent
 		return preg_replace('/(?!^)[A-Z]{2,}(?=[A-Z][a-z])|[A-Z][a-z]|[0-9]{1,}/', ' $0', $string);
 	}
 
-	/*
+	/**
 	 * @return JSON containing recipient list stats
 	 */
 	public function getListStats($listId)
@@ -215,7 +224,7 @@ class SproutCampaignMonitorService extends BaseApplicationComponent
 		return $this->tryJsonResponse($response);
 	}
 
-	/*
+	/**
 	 * @return JSON containing recipient list details
 	 */
 	public function getDetails($listId)
@@ -228,6 +237,11 @@ class SproutCampaignMonitorService extends BaseApplicationComponent
 		return $this->tryJsonResponse($response);
 	}
 
+	/**
+	 * @param array $extra
+	 *
+	 * @return array
+	 */
 	public function getPostParams(array $extra = array())
 	{
 		$params = array(
@@ -237,13 +251,16 @@ class SproutCampaignMonitorService extends BaseApplicationComponent
 		return array_merge($params, $extra);
 	}
 
+	/**
+	 * @param $response
+	 *
+	 * @return array
+	 */
 	private function tryJsonResponse($response)
 	{
 		try
 		{
-			$items = $response;
-
-			return $items;
+			return $response;
 		}
 		catch (\Exception $e)
 		{
@@ -280,6 +297,9 @@ class SproutCampaignMonitorService extends BaseApplicationComponent
 		SproutEmailPlugin::log($message, LogLevel::Error);
 	}
 
+	/**
+	 * @return mixed
+	 */
 	public function getErrors()
 	{
 		return $this->error;
