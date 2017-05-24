@@ -103,7 +103,6 @@ class SproutCampaignMonitorMailer extends SproutEmailBaseMailer implements Sprou
 			// Load service first to get proper API settings
 			$service = sproutCampaignMonitor();
 
-			// @todo - update to use new listSettings
 			$listIds = $campaignEmail->listSettings['listIds'];
 
 			$params = array(
@@ -188,11 +187,10 @@ class SproutCampaignMonitorMailer extends SproutEmailBaseMailer implements Sprou
 	/**
 	 * @param SproutEmail_CampaignEmailModel $campaignEmail
 	 *
-	 * @return Craft\SproutEmail_MailerService
+	 * @return array
 	 */
 	public function prepareLists(SproutEmail_CampaignEmailModel $campaignEmail)
 	{
-		// @todo - update to use new $listSetttings
 		$lists = array();
 
 		return $lists;
@@ -237,7 +235,7 @@ class SproutCampaignMonitorMailer extends SproutEmailBaseMailer implements Sprou
 	 *
 	 * @return string|\Twig_Markup
 	 */
-	public function getListsHtml(array $values = null)
+	public function getListsHtml($values = null)
 	{
 		$lists = $this->getLists();
 

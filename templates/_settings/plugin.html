@@ -13,7 +13,7 @@
 	name: 'apiKey',
 	instructions: "Enter the API Key from your <a href='https://www.campaignmonitor.com/api/getting-started/?&_ga=1.195741929.458523390.1446569721#clientid' target='_blank'>Client Settings</a>."|t,
 	value: settings is defined ? settings.apiKey : null,
-	warning: (craft.config.sproutEmail.campaignmonitor.apiKey ? configWarning('apiKey')),
+	warning: (craft.config.sproutEmail.campaignmonitor.apiKey is defined ? configWarning('apiKey')),
 	errors: settings is defined ? settings.getErrors('apiKey') : null,
 	first: true
 }) }}
@@ -23,6 +23,6 @@
 	name: 'clientId',
 	instructions: "Enter the Client ID from your <a href='https://www.campaignmonitor.com/api/getting-started/?&_ga=1.195741929.458523390.1446569721#clientid' target='_blank'>Client Settings</a>."|t,
 	value: settings is defined ? settings.clientId : null,
-	warning: (craft.config.sproutEmail.campaignmonitor.clientId ? configWarning('clientId')),
+	warning: (craft.config.sproutEmail.campaignmonitor.clientId is defined ? configWarning('clientId')),
 	errors: settings is defined ? settings.getErrors('clientId') : null
 }) }}
