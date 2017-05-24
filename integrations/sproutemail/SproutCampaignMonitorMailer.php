@@ -57,9 +57,20 @@ class SproutCampaignMonitorMailer extends SproutEmailBaseMailer implements Sprou
 	 */
 	public function getSettings()
 	{
-		$plugin = craft()->plugins->getPlugin('sproutCampaignMonitor');
+		$general = craft()->config->get('sproutEmail');
 
-		return $plugin->getSettings();
+		if ($general != null && isset($general['campaignmonitor']))
+		{
+			$settings = $general['campaignmonitor'];
+		}
+		else
+		{
+			$plugin = craft()->plugins->getPlugin('sproutCampaignMonitor');
+
+			$settings = $plugin->getSettings()->getAttributes();
+		}
+
+		return $settings;
 	}
 
 	/**
