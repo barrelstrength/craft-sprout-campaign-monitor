@@ -8,6 +8,15 @@
 			<td><strong>{{ "Subject"|t }}</strong></td>
 			<td>{{ campaignEmail.subjectLine }}</td>
 		</tr>
+
+		{% set sendDate = craft.sproutEmail.getDisplaySendDate(campaignEmail) %}
+		{% if sendDate is not empty %}
+			<tr>
+				<td><strong>{{ "Send Date"|t }}</strong></td>
+				<td>{{ sendDate|date("F jS Y \\a\\t g:ia") }}</td>
+			</tr>
+		{% endif %}
+
 		<tr>
 			<td><strong>{{ "From Name"|t }}</strong></td>
 			<td>{{ campaignEmail.fromName }}</td>
