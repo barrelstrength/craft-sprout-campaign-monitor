@@ -103,32 +103,7 @@ class SproutCampaignMonitorMailer extends SproutEmailBaseMailer implements Sprou
 			// Load service first to get proper API settings
 			$service = sproutCampaignMonitor();
 
-			$listIds = $campaignEmail->listSettings['listIds'];
-
-			$params = array(
-				'email'     => $campaignEmail,
-				'campaign'  => $campaignType,
-				'recipient' => array(
-					'firstName' => 'First',
-					'lastName'  => 'Last',
-					'email'     => 'user@domain.com'
-				),
-
-				// @deprecate - in favor of `email` in v3
-				'entry'     => $campaignEmail
-			);
-
-			$mailModel            = new SproutCampaignMonitor_CampaignModel;
-			$mailModel->Subject   = $campaignEmail->subjectLine;
-			$mailModel->Name      = $campaignType->name . ': ' . $campaignEmail->subjectLine;
-			$mailModel->FromName  = $campaignEmail->fromName;
-			$mailModel->FromEmail = $campaignEmail->fromEmail;
-			$mailModel->ReplyTo   = $campaignEmail->replyToEmail;
-			$mailModel->HtmlUrl   = $campaignEmail->getUrl();
-			$mailModel->TextUrl   = $campaignEmail->getUrl() . '?type=text';
-			$mailModel->html      = sproutEmail()->renderSiteTemplateIfExists($campaignType->template, $params);
-			$mailModel->text      = sproutEmail()->renderSiteTemplateIfExists($campaignType->template . '.txt', $params);
-			$mailModel->ListIDs   = $listIds;
+			$mailModel = $this->prepareMailModel($campaignEmail, $campaignType);
 
 			$result = $service->sendCampaignEmail($mailModel);
 		}
@@ -317,5 +292,73 @@ class SproutCampaignMonitorMailer extends SproutEmailBaseMailer implements Sprou
 		}
 
 		return $model;
+	}
+
+	public function sendTestEmail(SproutEmail_CampaignEmailModel $campaignEmail, SproutEmail_CampaignTypeModel
+	$campaignType, $emails = array())
+	{
+		$response = new SproutEmail_ResponseModel();
+
+		try
+		{
+			$mailModel = $this->prepareMailModel($campaignEmail, $campaignType);
+
+			$sentCampaign = sproutCampaignMonitor()->sendTestEmail($mailModel, $emails);
+
+			//$response->emailModel = $sentCampaign['emailModel'];
+
+			$response->success = true;
+			$response->message = Craft::t('Test Campaign successfully sent to {emails}.', array(
+				'emails' => implode(", ", $emails)
+			));
+		}
+		catch (\Exception $e)
+		{
+			$response->success = false;
+			$response->message = $e->getMessage();
+
+			sproutEmail()->error($e->getMessage());
+		}
+
+		$response->content = craft()->templates->render('sproutmailchimp/_modals/sendEmailConfirmation', array(
+			'mailer'  => $campaignEmail,
+			'success' => $response->success,
+			'message' => $response->message
+		));
+
+		return $response;
+	}
+
+	private function prepareMailModel(SproutEmail_CampaignEmailModel $campaignEmail, SproutEmail_CampaignTypeModel
+	$campaignType)
+	{
+		$listIds = $campaignEmail->listSettings['listIds'];
+
+		$params = array(
+			'email'     => $campaignEmail,
+			'campaign'  => $campaignType,
+			'recipient' => array(
+				'firstName' => 'First',
+				'lastName'  => 'Last',
+				'email'     => 'user@domain.com'
+			),
+
+			// @deprecate - in favor of `email` in v3
+			'entry'     => $campaignEmail
+		);
+
+		$mailModel            = new SproutCampaignMonitor_CampaignModel;
+		$mailModel->Subject   = $campaignEmail->subjectLine;
+		$mailModel->Name      = $campaignType->name . ': ' . $campaignEmail->subjectLine;
+		$mailModel->FromName  = $campaignEmail->fromName;
+		$mailModel->FromEmail = $campaignEmail->fromEmail;
+		$mailModel->ReplyTo   = $campaignEmail->replyToEmail;
+		$mailModel->HtmlUrl   = $campaignEmail->getUrl();
+		$mailModel->TextUrl   = $campaignEmail->getUrl() . '?type=text';
+		$mailModel->html      = sproutEmail()->renderSiteTemplateIfExists($campaignType->template, $params);
+		$mailModel->text      = sproutEmail()->renderSiteTemplateIfExists($campaignType->template . '.txt', $params);
+		$mailModel->ListIDs   = $listIds;
+
+		return $mailModel;
 	}
 }

@@ -44,20 +44,7 @@ class SproutCampaignMonitorService extends BaseApplicationComponent
 		{
 			$auth = $this->getPostParams();
 
-			$params = array(
-				'Subject'   => $campaignModel->Subject,
-				'Name'      => $campaignModel->Name . ': ' . $campaignModel->Subject,
-				'FromName'  => $campaignModel->FromName,
-				'FromEmail' => $campaignModel->FromEmail,
-				'ReplyTo'   => $campaignModel->ReplyTo,
-				'HtmlUrl'   => $campaignModel->HtmlUrl,
-				'TextUrl'   => $campaignModel->TextUrl,
-				'ListIDs'   => $campaignModel->ListIDs
-			);
-
-			// Set up API call to create a draft campaign and assign the response to $response
-			$draftCampaign = new CS_REST_Campaigns(null, $auth);
-			$response      = $draftCampaign->create($this->settings['clientId'], $params);
+			$response = $this->createCampaign($campaignModel);
 
 			$email = new EmailModel();
 
@@ -89,6 +76,66 @@ class SproutCampaignMonitorService extends BaseApplicationComponent
 
 			throw $e;
 		}
+	}
+
+	public function sendTestEmail(SproutCampaignMonitor_CampaignModel $campaignModel, $emails)
+	{
+		try
+		{
+			$auth = $this->getPostParams();
+
+			$response = $this->createCampaign($campaignModel);
+
+			$email = new EmailModel();
+
+			$email->subject   = $campaignModel->Subject;
+			$email->fromName  = $campaignModel->FromName;
+			$email->fromEmail = $campaignModel->FromEmail;
+			$email->body      = $campaignModel->text;
+			$email->htmlBody  = $campaignModel->html;
+
+			// Conditional return for success/fail response from Campaign Monitor
+			if (!$response->was_successful())
+			{
+				sproutCampaignMonitor()->error('Error creating campaign in Campaign Monitor: ' . $response->http_status_code . ' - ' . $response->response->Message);
+
+				throw new Exception(Craft::t('{code}: {msg}', array('code' => $response->http_status_code, 'msg' => $response->response->Message)));
+			}
+			else
+			{
+				SproutEmailPlugin::log(Craft::t('Successfully created campaign in Campaign Monitor with ID: ' . $response->response), LogLevel::Info);
+
+				$this->sendEmailPreview($emails, $response->response, $auth);
+
+				return array('id' => $response->response, 'emailModel' => $email);
+			}
+		}
+		catch (\Exception $e)
+		{
+			sproutCampaignMonitor()->error('Error creating campaign in Campaign Monitor: ' . $e->getMessage());
+
+			throw $e;
+		}
+	}
+
+	private function createCampaign($campaignModel)
+	{
+		$params = array(
+			'Subject'   => $campaignModel->Subject,
+			'Name'      => $campaignModel->Name . ': ' . $campaignModel->Subject,
+			'FromName'  => $campaignModel->FromName,
+			'FromEmail' => $campaignModel->FromEmail,
+			'ReplyTo'   => $campaignModel->ReplyTo,
+			'HtmlUrl'   => $campaignModel->HtmlUrl,
+			'TextUrl'   => $campaignModel->TextUrl,
+			'ListIDs'   => $campaignModel->ListIDs
+		);
+
+		// Set up API call to create a draft campaign and assign the response to $response
+		$draftCampaign = new CS_REST_Campaigns(null, $auth);
+		$response      = $draftCampaign->create($this->settings['clientId'], $params);
+
+		return $response;
 	}
 
 	/**
@@ -130,6 +177,39 @@ class SproutCampaignMonitorService extends BaseApplicationComponent
 		catch (\Exception $e)
 		{
 			sproutCampaignMonitor()->error('Error sending campaign through Campaign Monitor: ' . $e->getMessage());
+
+			throw $e;
+		}
+	}
+
+	public function sendEmailPreview($emails, $campaignTypeId, $auth)
+	{
+		// Access the newly created draft campaign
+		$campaignToSend = new CS_REST_Campaigns($campaignTypeId, $auth);
+
+		// Try to send the campaign
+		try
+		{
+			$response = $campaignToSend->send_preview($emails);
+
+			if (!$response->was_successful())
+			{
+				sproutCampaignMonitor()->error('Error sending test campaign through Campaign Monitor: ' .
+					$response->http_status_code . ' - ' . $response->response->Message);
+
+				return false;
+			}
+			else
+			{
+				SproutEmailPlugin::log(Craft::t('Successfully sent test campaign through Campaign Monitor with ID: ' .
+					$campaignTypeId), LogLevel::Info);
+
+				return true;
+			}
+		}
+		catch (\Exception $e)
+		{
+			sproutCampaignMonitor()->error('Error sending test campaign through Campaign Monitor: ' . $e->getMessage());
 
 			throw $e;
 		}

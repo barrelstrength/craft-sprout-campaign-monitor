@@ -1,22 +1,15 @@
 {% import "_includes/forms" as forms %}
 
-<h1>{{ "Review & Send"|t }}</h1>
+<div class="body">
 
-<table class="data fullwidth">
-	<tbody>
+	<h1>{{ 'Campaign Snapshot'|t }}</h1>
+
+	<table class="data fullwidth">
+		<tbody>
 		<tr>
 			<td><strong>{{ "Subject"|t }}</strong></td>
-			<td>{{ campaignEmail.subjectLine }}</td>
+			<td>{{ campaignEmail.title }}</td>
 		</tr>
-
-		{% set sendDate = craft.sproutEmail.getDisplaySendDate(campaignEmail) %}
-		{% if sendDate is not empty %}
-			<tr>
-				<td><strong>{{ "Send Date"|t }}</strong></td>
-				<td>{{ sendDate|date("F jS Y \\a\\t g:ia") }}</td>
-			</tr>
-		{% endif %}
-
 		<tr>
 			<td><strong>{{ "From Name"|t }}</strong></td>
 			<td>{{ campaignEmail.fromName }}</td>
@@ -29,29 +22,73 @@
 			<td><strong>{{ "Reply To"|t }}</strong></td>
 			<td>{{ campaignEmail.replyToEmail }}</td>
 		</tr>
+		</tbody>
+	</table>
+	<br>
+
+	<table class="data fullwidth">
+		<tbody>
+		<tr style="background-color:#eee;font-size:14px;">
+			<th colspan="2">{{ 'Content'|t }}</th>
+		</tr>
 		<tr>
-			<td style="vertical-align:top;">
-				<strong>{{ "Lists"|t }}</strong>
+			<td>
+				<strong>{{ "HTML"|t }}</strong>
 			</td>
 			<td>
-				<ul>
-					{% for list in lists %}
-				  	<li>{{ list }}</li>
-					{% endfor %}
-				</ul>
+				{% if craft.sproutEmail.doesSiteTemplateExist(campaignType.template) %}
+					<a href="{{ campaignEmail.getUrl() }}" title="{{ campaignEmail.title }}" target="_blank">{{ "Preview"|t }}</a>
+				{% endif %}
 			</td>
 		</tr>
-	</tbody>
-</table>
+		<tr>
+			<td>
+				<strong>{{ "Text"|t }}</strong>
+			</td>
+			<td>
+				{% if craft.sproutEmail.doesSiteTemplateExist(campaignType.template) %}
+					<a href="{{ campaignEmail.getUrl() ~ '?type=text' }}" title="{{ campaignEmail.title }}" target="_blank">{{ "Preview"|t }}</a>
+				{% endif %}
+			</td>
+		</tr>
+		</tbody>
+	</table>
+	<br>
 
-<div class="buttons right">
-	<div class="buttons">
-		<button id="cancel" class="btn">{{ "Cancel"|t }}</button>
+	<table class="data fullwidth">
+		<tbody>
+		<tr style="background-color:#eee;font-size:14px;">
+			<th colspan="2">{{ 'Recipients'|t }}</th>
+		</tr>
+		{% for list in lists %}
+			<tr class="snapshot-recipients">
+				<td colspan="2">
+					{{ list }}
+				</td>
+			</tr>
+		{% endfor %}
+		</tbody>
+	</table>
+
+</div>
+
+<div class="footer">
+
+	<div class="buttons right">
 		<button
-			data-mailer="campaignmonitor"
-			data-action="sproutEmail/campaignEmails/sendCampaignEmail"
-	    data-email-id="{{ campaignEmail.id }}"
-	    data-campaign-type-id="{{ campaignType.id }}"
-	    class="btn submit icon actions send-campaign">{{ "Send Campaign"|t }}</button>
+			data-action="sproutEmail/campaignEmails/sendTestEmailModal"
+			data-email-id="{{ campaignEmail.id }}"
+			class="btn actions">{{ "Send Test"|t }}
+		</button>
+		<button
+			data-action="sproutEmail/campaignEmails/scheduleCampaignEmail"
+			data-email-id="{{ campaignEmail.id }}"
+			class="btn submit actions">{{ "Schedule Campaign"|t }}
+		</button>
+
 	</div>
+	<div class="buttons left">
+		<button id="cancel" class="btn">{{ "Cancel"|t }}</button>
+	</div>
+
 </div>
