@@ -115,7 +115,7 @@ class SproutCampaignMonitorMailer extends SproutEmailBaseMailer implements Sprou
 		$response             = new SproutEmail_ResponseModel();
 		$response->emailModel = $result['emailModel'];
 		$response->success    = true;
-		$response->content    = craft()->templates->render('sproutcampaignmonitor/_modals/sendEmailConfirmation', array(
+		$response->content    = craft()->templates->render('sproutemail/_modals/response', array(
 			'success'  => true,
 			'response' => $response
 		));
@@ -152,10 +152,10 @@ class SproutCampaignMonitorMailer extends SproutEmailBaseMailer implements Sprou
 			}
 		}
 
-		return craft()->templates->render('sproutcampaignmonitor/_modals/sendEmailPrepare', array(
-			'campaignEmail' => $campaignEmail,
-			'campaignType'  => $campaignType,
-			'lists'         => $lists
+		return craft()->templates->render('sproutcampaignmonitor/_modals/campaigns/prepareEmailSnapshot', array(
+			'email'        => $campaignEmail,
+			'campaignType' => $campaignType,
+			'lists'        => $lists
 		));
 	}
 
@@ -294,8 +294,7 @@ class SproutCampaignMonitorMailer extends SproutEmailBaseMailer implements Sprou
 		return $model;
 	}
 
-	public function sendTestEmail(SproutEmail_CampaignEmailModel $campaignEmail, SproutEmail_CampaignTypeModel
-	$campaignType, $emails = array())
+	public function sendTestEmail(SproutEmail_CampaignEmailModel $campaignEmail, SproutEmail_CampaignTypeModel $campaignType, $emails = array())
 	{
 		$response = new SproutEmail_ResponseModel();
 
@@ -322,15 +321,16 @@ class SproutCampaignMonitorMailer extends SproutEmailBaseMailer implements Sprou
 			sproutEmail()->error($e->getMessage());
 		}
 
-		$response->content = craft()->templates->render('sproutcampaignmonitor/_modals/sendEmailConfirmation', array(
-			'response'  => $response
+		$response->content = craft()->templates->render('sproutmailchimp/_modals/response', array(
+			'email'   => $campaignEmail,
+			'success' => $response->success,
+			'message' => $response->message
 		));
 
 		return $response;
 	}
 
-	private function prepareMailModel(SproutEmail_CampaignEmailModel $campaignEmail, SproutEmail_CampaignTypeModel
-	$campaignType)
+	private function prepareMailModel(SproutEmail_CampaignEmailModel $campaignEmail, SproutEmail_CampaignTypeModel $campaignType)
 	{
 		$listIds = $campaignEmail->listSettings['listIds'];
 
