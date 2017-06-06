@@ -303,9 +303,12 @@ class SproutCampaignMonitorMailer extends SproutEmailBaseMailer implements Sprou
 		{
 			$mailModel = $this->prepareMailModel($campaignEmail, $campaignType);
 
+			$mailModel->Subject = 'Test: ' . $campaignEmail->subjectLine;
+			$mailModel->Name    = 'Test: ' . $mailModel->Name;
+
 			$sentCampaign = sproutCampaignMonitor()->sendTestEmail($mailModel, $emails);
 
-			//$response->emailModel = $sentCampaign['emailModel'];
+			$response->emailModel = $sentCampaign['emailModel'];
 
 			$response->success = true;
 			$response->message = Craft::t('Test Campaign successfully sent to {emails}.', array(
@@ -316,14 +319,11 @@ class SproutCampaignMonitorMailer extends SproutEmailBaseMailer implements Sprou
 		{
 			$response->success = false;
 			$response->message = $e->getMessage();
-
 			sproutEmail()->error($e->getMessage());
 		}
 
-		$response->content = craft()->templates->render('sproutmailchimp/_modals/sendEmailConfirmation', array(
-			'mailer'  => $campaignEmail,
-			'success' => $response->success,
-			'message' => $response->message
+		$response->content = craft()->templates->render('sproutcampaignmonitor/_modals/sendEmailConfirmation', array(
+			'response'  => $response
 		));
 
 		return $response;

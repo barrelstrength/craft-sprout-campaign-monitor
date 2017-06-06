@@ -120,9 +120,11 @@ class SproutCampaignMonitorService extends BaseApplicationComponent
 
 	private function createCampaign($campaignModel)
 	{
+		$auth = $this->getPostParams();
+
 		$params = array(
 			'Subject'   => $campaignModel->Subject,
-			'Name'      => $campaignModel->Name . ': ' . $campaignModel->Subject,
+			'Name'      => $campaignModel->Name,
 			'FromName'  => $campaignModel->FromName,
 			'FromEmail' => $campaignModel->FromEmail,
 			'ReplyTo'   => $campaignModel->ReplyTo,
