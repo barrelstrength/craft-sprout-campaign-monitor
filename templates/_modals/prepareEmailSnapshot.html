@@ -1,0 +1,94 @@
+{% import "_includes/forms" as forms %}
+
+<div class="body">
+
+	<h1>{{ 'Campaign Snapshot'|t }}</h1>
+
+	<table class="data fullwidth">
+		<tbody>
+		<tr>`
+			<td><strong>{{ "Subject"|t }}</strong></td>
+			<td>{{ mail.title }}</td>
+		</tr>
+		<tr>
+			<td><strong>{{ "From Name"|t }}</strong></td>
+			<td>{{ mail.fromName }}</td>
+		</tr>
+		<tr>
+			<td><strong>{{ "From Email"|t }}</strong></td>
+			<td>{{ mail.fromEmail }}</td>
+		</tr>
+		<tr>
+			<td><strong>{{ "Reply To"|t }}</strong></td>
+			<td>{{ mail.replyToEmail }}</td>
+		</tr>
+		</tbody>
+	</table>
+	<br>
+
+	<table class="data fullwidth">
+		<tbody>
+		<tr style="background-color:#eee;font-size:14px;">
+			<th colspan="2">{{ 'Content'|t }}</th>
+		</tr>
+		<tr>
+			<td>
+				<strong>{{ "HTML"|t }}</strong>
+			</td>
+			<td>
+				{% if craft.sproutEmail.doesSiteTemplateExist(campaignType.template) %}
+					<a href="{{ mail.getUrl() }}" title="{{ mail.title }}" target="_blank">{{ "Preview"|t }}</a>
+				{% endif %}
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<strong>{{ "Text"|t }}</strong>
+			</td>
+			<td>
+				{% if craft.sproutEmail.doesSiteTemplateExist(campaignType.template) %}
+					<a href="{{ mail.getUrl() ~ '?type=text' }}" title="{{ mail.title }}" target="_blank">{{ "Preview"|t }}</a>
+				{% endif %}
+			</td>
+		</tr>
+		</tbody>
+	</table>
+	<br>
+
+	<table class="data fullwidth">
+		<tbody>
+		<tr style="background-color:#eee;font-size:14px;">
+			<th colspan="2">{{ 'Recipients'|t }}</th>
+		</tr>
+		{% for list in lists %}
+			<tr class="snapshot-recipients">
+				<td colspan="2">
+					{{ list }}
+				</td>
+			</tr>
+		{% endfor %}
+		</tbody>
+	</table>
+
+</div>
+
+<div class="footer">
+
+	<div class="buttons right">
+		<button
+			data-action="sproutEmail/mails/sendTestEmailModal"
+			data-email-id="{{ mail.id }}"
+			class="btn actions">{{ "Send Test"|t }}
+		</button>
+		<button
+			data-action="sproutEmail/mails/schedulemail"
+			data-email-id="{{ mail.id }}"
+			class="btn submit actions">{{ "Schedule Campaign"|t }}
+		</button>
+
+	</div>
+	<div class="buttons left">
+		<button id="cancel" class="btn">{{ "Cancel"|t }}</button>
+	</div>
+
+</div>

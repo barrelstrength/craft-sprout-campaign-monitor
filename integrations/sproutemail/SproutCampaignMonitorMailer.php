@@ -294,7 +294,8 @@ class SproutCampaignMonitorMailer extends SproutEmailBaseMailer implements Sprou
 		return $model;
 	}
 
-	public function sendTestEmail(SproutEmail_CampaignEmailModel $campaignEmail, SproutEmail_CampaignTypeModel $campaignType, $emails = array())
+	public function sendTestEmail(SproutEmail_CampaignEmailModel $campaignEmail, SproutEmail_CampaignTypeModel
+	$campaignType, $emails = array())
 	{
 		$response = new SproutEmail_ResponseModel();
 
@@ -321,16 +322,15 @@ class SproutCampaignMonitorMailer extends SproutEmailBaseMailer implements Sprou
 			sproutEmail()->error($e->getMessage());
 		}
 
-		$response->content = craft()->templates->render('sproutmailchimp/_modals/response', array(
-			'email'   => $campaignEmail,
-			'success' => $response->success,
-			'message' => $response->message
+		$response->content = craft()->templates->render('sproutcampaignmonitor/_modals/sendEmailConfirmation', array(
+			'response'  => $response
 		));
 
 		return $response;
 	}
 
-	private function prepareMailModel(SproutEmail_CampaignEmailModel $campaignEmail, SproutEmail_CampaignTypeModel $campaignType)
+	private function prepareMailModel(SproutEmail_CampaignEmailModel $campaignEmail, SproutEmail_CampaignTypeModel
+	$campaignType)
 	{
 		$listIds = $campaignEmail->listSettings['listIds'];
 
