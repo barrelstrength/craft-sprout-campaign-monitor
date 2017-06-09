@@ -144,15 +144,19 @@ class SproutCampaignMonitorMailer extends SproutEmailBaseMailer implements Sprou
 
 		if (is_array($listSettings['listIds']) && count($listSettings['listIds']))
 		{
-			foreach ($listSettings['listIds'] as $list)
+			foreach ($listSettings['listIds'] as $key => $list)
 			{
-				$currentList = sproutCampaignMonitor()->getDetails($list)->Title;
+				$currentList = sproutCampaignMonitor()->getDetails($list);
 
-				array_push($lists, $currentList);
+				$total = sproutCampaignMonitor()->getListStats($currentList->ListID)->TotalActiveSubscribers;
+
+				$lists[$key]['title'] = $currentList->Title;
+				$lists[$key]['total'] = $total;
 			}
 		}
 
-		return craft()->templates->render('sproutcampaignmonitor/_modals/campaigns/prepareEmailSnapshot', array(
+		return craft()->templates->render('sproutcampaignmonitor/_modals/prepareEmailSnapshot', array(
+			'mailer'       => $this,
 			'email'        => $campaignEmail,
 			'campaignType' => $campaignType,
 			'lists'        => $lists
