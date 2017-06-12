@@ -105,7 +105,16 @@ class SproutCampaignMonitorMailer extends SproutEmailBaseMailer implements Sprou
 
 			$mailModel = $this->prepareMailModel($campaignEmail, $campaignType);
 
-			$result = $service->sendCampaignEmail($mailModel);
+			$campaignId = $this->getCampaignId($campaignEmail, $mailModel);
+
+			$sentCampaign = $service->sendCampaignEmail($mailModel, $campaignId);
+
+			if (!empty($sentCampaign['id']))
+			{
+				sproutEmail()->campaignEmails->saveEmailSettings($campaignEmail, array(
+					'campaignId' => $sentCampaign['id']
+				));
+			}
 		}
 		catch (\Exception $e)
 		{
@@ -113,9 +122,10 @@ class SproutCampaignMonitorMailer extends SproutEmailBaseMailer implements Sprou
 		}
 
 		$response             = new SproutEmail_ResponseModel();
-		$response->emailModel = $result['emailModel'];
+		$response->emailModel = $sentCampaign['emailModel'];
 		$response->success    = true;
 		$response->content    = craft()->templates->render('sproutemail/_modals/response', array(
+			'email'   => $campaignEmail,
 			'success'  => true,
 			'response' => $response
 		));
@@ -307,10 +317,16 @@ class SproutCampaignMonitorMailer extends SproutEmailBaseMailer implements Sprou
 		{
 			$mailModel = $this->prepareMailModel($campaignEmail, $campaignType);
 
-			$mailModel->Subject = 'Test: ' . $campaignEmail->subjectLine;
-			$mailModel->Name    = 'Test: ' . $mailModel->Name;
+			$campaignId = $this->getCampaignId($campaignEmail, $mailModel);
 
-			$sentCampaign = sproutCampaignMonitor()->sendTestEmail($mailModel, $emails);
+			$sentCampaign = sproutCampaignMonitor()->sendTestEmail($mailModel, $emails, $campaignId);
+
+			if (!empty($sentCampaign['id']))
+			{
+				sproutEmail()->campaignEmails->saveEmailSettings($campaignEmail, array(
+					'campaignId' => $sentCampaign['id']
+				));
+			}
 
 			$response->emailModel = $sentCampaign['emailModel'];
 
@@ -326,8 +342,10 @@ class SproutCampaignMonitorMailer extends SproutEmailBaseMailer implements Sprou
 			sproutEmail()->error($e->getMessage());
 		}
 
-		$response->content = craft()->templates->render('sproutcampaignmonitor/_modals/sendEmailConfirmation', array(
-			'response'  => $response
+		$response->content = craft()->templates->render('sproutemail/_modals/response', array(
+			'email'   => $campaignEmail,
+			'success' => $response->success,
+			'message' => $response->message
 		));
 
 		return $response;
@@ -364,5 +382,22 @@ class SproutCampaignMonitorMailer extends SproutEmailBaseMailer implements Sprou
 		$mailModel->ListIDs   = $listIds;
 
 		return $mailModel;
+	}
+
+	private function getCampaignId($campaignEmail, $mailChimpModel)
+	{
+		if ($campaignEmail->emailSettings != null AND !empty($campaignEmail->emailSettings['campaignId']))
+		{
+			$emailSettingsId = $campaignEmail->emailSettings['campaignId'];
+
+			if (!empty($emailSettingsId))
+			{
+				sproutCampaignMonitor()->deleteCampaignIdIfExists($emailSettingsId);
+			}
+		}
+
+		$campaignId = sproutCampaignMonitor()->createCampaign($mailChimpModel);
+
+		return $campaignId;
 	}
 }
