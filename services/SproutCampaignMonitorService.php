@@ -70,8 +70,6 @@ class SproutCampaignMonitorService extends BaseApplicationComponent
 		{
 			$auth = $this->getPostParams();
 
-		//	$response = $this->createCampaign($campaignModel);
-
 			$email = new EmailModel();
 
 			$email->subject   = $campaignModel->Subject;
