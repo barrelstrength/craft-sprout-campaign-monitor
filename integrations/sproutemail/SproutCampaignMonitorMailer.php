@@ -169,7 +169,8 @@ class SproutCampaignMonitorMailer extends SproutEmailBaseMailer implements Sprou
 			'mailer'       => $this,
 			'email'        => $campaignEmail,
 			'campaignType' => $campaignType,
-			'lists'        => $lists
+			'lists'        => $lists,
+			'canBeTested'  => true
 		));
 	}
 
