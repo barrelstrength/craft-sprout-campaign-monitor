@@ -2,7 +2,7 @@
 
 Sprout Campaign Monitor enables you to integrate Campaign Monitor into your Craft CMS workflow. 
 
-# Campaign Emails
+## Campaign Emails
 
 - This plugin provides a Campaign Monitor integration for Sprout Email allowing a user to create emails, select 
 lists, and send campaigns via Campaign Monitor directly from Craft. 
@@ -14,4 +14,4 @@ lists, and send campaigns via Campaign Monitor directly from Craft.
 
 ## Roadmap
 
-Add support to Subscribe and Unsubscribe users to Campaign Monitor lists from Craft.
+- Add support to Subscribe and Unsubscribe users to Campaign Monitor lists from Craft.
