@@ -25,7 +25,7 @@ class SproutCampaignMonitorPlugin extends BasePlugin
 	 */
 	public function getVersion()
 	{
-		return '0.6.2';
+		return '0.7.0';
 	}
 
 	/**
@@ -51,6 +51,22 @@ class SproutCampaignMonitorPlugin extends BasePlugin
 	{
 		return 'http://barrelstrengthdesign.com';
 	}
+
+    /**
+     * @return null|string
+     */
+    public function getDocumentationUrl()
+    {
+        return "https://github.com/barrelstrength/craft-sprout-campaign-monitor/blob/v0/README.md";
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getReleaseFeedUrl()
+    {
+        return 'https://raw.githubusercontent.com/barrelstrength/craft-sprout-campaign-monitor/v0/releases.json';
+    }
 
 	/**
 	 * @return bool

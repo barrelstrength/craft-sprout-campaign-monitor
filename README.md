@@ -11,7 +11,3 @@ lists, and send campaigns via Campaign Monitor directly from Craft.
 
 - Craft CMS 2.6 or later
 - Sprout Email 3.0 or later
-
-## Roadmap
-
-- Add support to Subscribe and Unsubscribe users to Campaign Monitor lists from Craft.
