@@ -9,8 +9,8 @@ lists, and send campaigns via Campaign Monitor directly from Craft.
 
 ## Requirements
 
-- Craft CMS 2.6 or later
-- Sprout Email 3.0 or later
+- Craft CMS 3.0 or later
+- Sprout Email 4.0 or later
 
 ## Roadmap
 
